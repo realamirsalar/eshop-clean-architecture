@@ -16,4 +16,8 @@
     <Folder Include="Controllers\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\E-Shop.Infrastructure\E-Shop.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>
