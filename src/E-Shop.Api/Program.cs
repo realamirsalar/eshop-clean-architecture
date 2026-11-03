@@ -5,8 +5,13 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+
+builder.Services.AddApiVersioning();
 
 var app = builder.Build();
 
@@ -14,8 +19,14 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapScalarApiReference();
+    app.MapScalarApiReference(options =>
+    {
+        options.Title = "E-Shop.Api";
+        options.Theme = ScalarTheme.DeepSpace;
+        options.OpenApiRoutePattern = "/openapi/{documentName}.json";
+    });
 }
+
 
 app.UseHttpsRedirection();
 
