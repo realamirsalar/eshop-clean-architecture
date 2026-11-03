@@ -28,6 +28,11 @@ if (app.Environment.IsDevelopment())
 }
 
 
+app.UseExceptionHandler();
+app.UseStatusCodePages();
+
+app.UseStaticFiles();
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
