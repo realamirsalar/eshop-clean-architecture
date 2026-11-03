@@ -13,11 +13,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
+    <ProjectReference Include="..\E-Shop.Infrastructure\E-Shop.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\E-Shop.Infrastructure\E-Shop.Infrastructure.csproj" />
+    <Folder Include="Controllers\v1\" />
   </ItemGroup>
 
 </Project>
