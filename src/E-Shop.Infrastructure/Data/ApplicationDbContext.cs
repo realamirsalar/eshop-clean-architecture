@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using E_Shop.Domain;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace E_Shop.Infrastructure.Data
@@ -10,6 +11,7 @@ namespace E_Shop.Infrastructure.Data
         {
             
         }
+        public DbSet<Category> Categories { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
