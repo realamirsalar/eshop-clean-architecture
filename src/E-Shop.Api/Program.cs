@@ -1,3 +1,4 @@
+using E_Shop.Application;
 using E_Shop.Infrastructure;
 using Scalar.AspNetCore;
 
@@ -9,6 +10,7 @@ builder.Services.AddControllers();
 
 builder.Services.AddDatabaseConfigurations(builder.Configuration.GetConnectionString("DefaultConnection"));
 builder.Services.AddInfrastructureDIs();
+builder.Services.AddApplicationDIs();
 
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
