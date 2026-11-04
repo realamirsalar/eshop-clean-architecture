@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using E_Shop.Application.Common.Interfaces;
+using E_Shop.Infrastructure.Data;
+using E_Shop.Infrastructure.Persistence.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace E_Shop.Infrastructure
@@ -7,9 +10,16 @@ namespace E_Shop.Infrastructure
     {
         public static IServiceCollection AddDatabaseConfigurations(this IServiceCollection services, string connectionString)
         {
-            services.AddDbContext<Data.ApplicationDbContext>(options =>
+            services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(connectionString));
             return services;
         }
+
+        public static IServiceCollection AddInfrastructureDIs(this IServiceCollection services)
+        {
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            return services;
+        }
+
     }
 }
