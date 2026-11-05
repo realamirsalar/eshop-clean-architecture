@@ -1,3 +1,4 @@
+using E_Shop.Api.ExceptionHandlers;
 using E_Shop.Application;
 using E_Shop.Infrastructure;
 using Scalar.AspNetCore;
@@ -18,6 +19,10 @@ builder.Services.AddOpenApi();
 
 
 builder.Services.AddApiVersioning();
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 
 var app = builder.Build();
 
