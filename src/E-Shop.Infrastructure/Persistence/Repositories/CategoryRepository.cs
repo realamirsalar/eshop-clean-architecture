@@ -15,7 +15,7 @@ namespace E_Shop.Infrastructure.Persistence.Repositories
             _db = db;
         }
 
-        public async Task Create(Category category, CancellationToken cancellationToken = default)
+        public async Task CreateAsync(Category category, CancellationToken cancellationToken = default)
         {
             await _db.Categories.AddAsync(category, cancellationToken);
         }

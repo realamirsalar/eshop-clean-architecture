@@ -20,9 +20,4 @@
     <ProjectReference Include="..\E-Shop.Domain\E-Shop.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\Category\Commands\" />
-    <Folder Include="Features\Category\Queries\" />
-  </ItemGroup>
-
 </Project>
