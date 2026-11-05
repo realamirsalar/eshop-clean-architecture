@@ -5,7 +5,7 @@ namespace E_Shop.Api
 {
     public static class Startup
     {
-        public static IServiceCollection AddApiVersioning(this IServiceCollection services)
+        public static IServiceCollection AddVersioning(this IServiceCollection services)
         {
             services.AddApiVersioning(options =>
             {

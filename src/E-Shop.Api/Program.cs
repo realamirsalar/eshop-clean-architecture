@@ -1,3 +1,4 @@
+using E_Shop.Api;
 using E_Shop.Api.ExceptionHandlers;
 using E_Shop.Application;
 using E_Shop.Infrastructure;
@@ -7,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+
 builder.Services.AddControllers();
 
 builder.Services.AddDatabaseConfigurations(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -14,11 +16,16 @@ builder.Services.AddInfrastructureDIs();
 builder.Services.AddApplicationDIs();
 
 
+builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(Program).Assembly));
+
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
+builder.Services.AddApiVersioning();
+builder.Services.AddVersioning();
 builder.Services.AddOpenApi();
 
 
-builder.Services.AddApiVersioning();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
