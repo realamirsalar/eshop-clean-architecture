@@ -1,4 +1,5 @@
-﻿using FluentResults;
+﻿using E_Shop.Application.Common.Errors;
+using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
@@ -72,8 +73,8 @@ namespace E_Shop.Api.Controllers
             // ۲. هندل کردن سایر خطاهای بیزینسی (دقیقاً مثل کد خودت)
             return firstError switch
             {
-                //NotFoundError => NotFound(CreateProblemDetails(404, "Not Found", firstError.Message)),
-                //ConflictError => Conflict(CreateProblemDetails(409, "Conflict", firstError.Message)),
+                NotFoundError => NotFound(CreateProblemDetails(404, "Not Found", firstError.Message)),
+                ConflictError => Conflict(CreateProblemDetails(409, "Conflict", firstError.Message)),
                 _ => BadRequest(CreateProblemDetails(400, "Bad Request", firstError.Message))
             };
         }
