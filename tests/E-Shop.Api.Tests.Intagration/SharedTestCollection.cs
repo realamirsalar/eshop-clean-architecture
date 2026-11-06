@@ -2,7 +2,8 @@
 
 namespace E_Shop.Api.Tests.Intagration
 {
-    internal class SharedTestCollection
+    [CollectionDefinition("IntegrationApiCollection")]
+    public class SharedTestCollection : ICollectionFixture<ApplicationApiFactory>
     {
     }
 }
