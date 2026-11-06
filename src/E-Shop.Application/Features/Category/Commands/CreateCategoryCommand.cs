@@ -1,13 +1,14 @@
 ﻿using AutoMapper;
 using E_Shop.Application.Common.Interfaces;
 using E_Shop.Application.Features.Category.Queries;
-using E_Shop.Domain;
+using E_Shop.Application.PipelineBehaviors.Contracts;
+
 using FluentResults;
 using MediatR;
 
 namespace E_Shop.Application.Features.Category.Commands
 {
-    public class CreateCategoryCommand : IRequest<Result<CategoryResponse>>
+    public class CreateCategoryCommand : IRequest<Result<CategoryResponse>> , IValidatable
     {
         public string Name { get; set; }
         public int? DisplayOrder { get; set; }

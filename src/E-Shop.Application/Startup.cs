@@ -1,4 +1,5 @@
 ﻿
+using E_Shop.Application.PipelineBehaviors;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,6 +12,7 @@ namespace E_Shop.Application
             services.AddMediatR(cfg =>
             {
                 cfg.RegisterServicesFromAssembly(typeof(Startup).Assembly);
+                cfg.AddOpenBehavior(typeof(ValidationPipelineBehaviors<,>));
             });
             services.AddAutoMapper(cfg => cfg.AddMaps(typeof(Startup).Assembly));
             services.AddValidatorsFromAssembly(typeof(Startup).Assembly);
