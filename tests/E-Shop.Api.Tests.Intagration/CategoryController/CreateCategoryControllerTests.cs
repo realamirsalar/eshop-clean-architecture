@@ -1,5 +1,4 @@
 ﻿
-
 using Bogus;
 using E_Shop.Api.Contracts.Category;
 using E_Shop.Application.Features.Category.Queries;
