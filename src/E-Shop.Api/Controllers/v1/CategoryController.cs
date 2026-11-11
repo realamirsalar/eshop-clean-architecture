@@ -2,6 +2,7 @@
 using AutoMapper;
 using E_Shop.Api.Contracts.Category;
 using E_Shop.Application.Features.Category.Commands;
+using E_Shop.Application.Features.Category.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,10 +22,25 @@ namespace E_Shop.Api.Controllers.v1
         }
 
         [HttpPost]
+        //[ProducesResponseType(typeof(CategoryResponse),StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(CategoryResponse),StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ValidationProblemDetails),StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status502BadGateway)]
         public async Task<IActionResult> Create(CreateCategoryRequest request)
         {
             var command = _mapper.Map<CreateCategoryCommand>(request);
             var result = await _sender.Send(command);
+            return HandleResult(result);
+        }
+
+        [HttpGet]
+        [ProducesResponseType(typeof(List<CategoryResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status502BadGateway)]
+        public async Task<IActionResult> GetAll()
+        {
+            var result = await _sender.Send(new GetAllCategoriesQuery());
             return HandleResult(result);
         }
     }

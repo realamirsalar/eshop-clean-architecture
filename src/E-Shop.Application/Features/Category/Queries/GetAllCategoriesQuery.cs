@@ -12,13 +12,11 @@ namespace E_Shop.Application.Features.Category.Queries
     public class GetAllCategoriesQueryHandler : IRequestHandler<GetAllCategoriesQuery, Result<List<CategoryResponse>>>
     {
         private readonly ICategoryRepository _categoryRepository;
-        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public GetAllCategoriesQueryHandler(ICategoryRepository categoryRepository, IUnitOfWork unitOfWork, IMapper mapper)
+        public GetAllCategoriesQueryHandler(ICategoryRepository categoryRepository, IMapper mapper)
         {
             _categoryRepository = categoryRepository;
-            _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
