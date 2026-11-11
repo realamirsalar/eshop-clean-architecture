@@ -43,5 +43,16 @@ namespace E_Shop.Api.Controllers.v1
             var result = await _sender.Send(new GetAllCategoriesQuery());
             return HandleResult(result);
         }
+
+        [HttpGet("{id:int}")]
+        [ProducesResponseType(typeof(CategoryResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status502BadGateway)]
+        public async Task<IActionResult> GetCategoryById([FromRoute] int id)
+        {
+            var result = await _sender.Send(new GetCategoryByIdQuery(id));
+            return HandleResult(result);
+        }
     }
 }
