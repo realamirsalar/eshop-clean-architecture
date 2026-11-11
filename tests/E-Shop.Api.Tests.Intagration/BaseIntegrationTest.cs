@@ -5,16 +5,16 @@ namespace E_Shop.Api.Tests.Intagration
     [Collection("IntegrationApiCollection")]
     public class BaseIntegrationTest : IAsyncLifetime
     {
-        protected readonly ApplicationApiFactory Factory;
-        protected readonly HttpClient Client;
+        protected readonly ApplicationApiFactory _factory;
+        protected readonly HttpClient _client;
         public BaseIntegrationTest(ApplicationApiFactory factory)
         {
-            Factory = factory;
-            Client = factory.CreateClient();
+            _factory = factory;
+            _client = factory.CreateClient();
         }
         public async ValueTask InitializeAsync()
         {
-            await Factory.ResetDatabaseAsync();
+            await _factory.ResetDatabaseAsync();
         }
 
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;

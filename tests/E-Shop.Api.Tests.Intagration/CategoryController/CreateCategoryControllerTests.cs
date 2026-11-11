@@ -5,6 +5,7 @@ using E_Shop.Api.Contracts.Category;
 using E_Shop.Application.Features.Category.Queries;
 using E_Shop.Infrastructure.Data;
 using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Net.Http.Json;
@@ -27,7 +28,7 @@ namespace E_Shop.Api.Tests.Intagration.CategoryController
             var request = _requestGenerator.Generate();
 
             // Act
-            var response = await Client.PostAsJsonAsync("/api/v1/categories", request);
+            var response = await _client.PostAsJsonAsync("/api/v1/categories", request);
 
             // Assert
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
@@ -42,7 +43,7 @@ namespace E_Shop.Api.Tests.Intagration.CategoryController
             responseData.DisplayOrder.Should().Be(request.DisplayOrder);
 
 
-            using (var scope = Factory.Services.CreateScope())
+            using (var scope = _factory.Services.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var categoryInDb = await dbContext.Categories.FindAsync(responseData.Id);
@@ -51,6 +52,30 @@ namespace E_Shop.Api.Tests.Intagration.CategoryController
                 categoryInDb.Name.Should().Be(request.Name);
                 categoryInDb.DisplayOrder.Should().Be(request.DisplayOrder);
             }
+        }
+
+        [Fact]
+        public async Task Create_ReturnsValidationError_WhenDataIsInvalid()
+        {
+            // Arrange
+            var category = new CreateCategoryRequest()
+            {
+                Name = "",
+                DisplayOrder = -1
+            };
+
+            // Act
+            var response = await _client.PostAsJsonAsync("/api/v1/categories", category);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+            var problemDetails = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
+
+            problemDetails.Should().NotBeNull();
+            problemDetails.Status.Should().Be(400);
+            problemDetails.Errors.Should().ContainKey("Name");
+            problemDetails.Errors.Should().ContainKey("DisplayOrder");
         }
     }
 }
