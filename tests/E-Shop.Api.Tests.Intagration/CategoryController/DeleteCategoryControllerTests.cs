@@ -1,5 +1,6 @@
 ﻿
 using Bogus;
+using E_Shop.Application.Features.Category.Queries;
 using E_Shop.Domain;
 using E_Shop.Infrastructure.Data;
 using FluentAssertions;
@@ -71,6 +72,41 @@ namespace E_Shop.Api.Tests.Intagration.CategoryController
             problemDetails.Should().NotBeNull();
             problemDetails.Status.Should().Be(400);
             problemDetails.Errors.Should().ContainKey("Id");
+
+        }
+
+        [Fact]
+        public async Task Delete_ShuoldInvalidateCache_WhenCategoryIsDeleted()
+        {
+            // Arrange
+            var categories = _categoryGenerator.Generate(3);
+            var targetCategory = categories[0];
+
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                dbContext.Categories.AddRange(categories);
+                await dbContext.SaveChangesAsync();
+            }
+
+            await _client.GetAsync($"/api/v1/categories");
+            await _client.GetAsync($"/api/v1/categories/{targetCategory.Id}");
+
+            // Act
+            var response = await _client.DeleteAsync($"/api/v1/categories/{targetCategory.Id}");
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.NoContent);
+
+            var getResponse = await _client.GetAsync($"/api/v1/categories/{targetCategory.Id}");
+            getResponse.StatusCode.Should().Be(System.Net.HttpStatusCode.NotFound);
+
+            var getAllResponse = await _client.GetAsync($"/api/v1/categories");
+            var list = await getAllResponse.Content.ReadFromJsonAsync<List<CategoryResponse>>();
+
+            list.Should().NotBeNull();
+            list.Should().HaveCount(2);
+            list.Should().NotContain(c => c.Id == targetCategory.Id);
 
         }
     }
