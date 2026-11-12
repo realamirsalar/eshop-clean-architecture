@@ -1,6 +1,7 @@
 ﻿
 using Bogus;
 using E_Shop.Api.Contracts.Category;
+using E_Shop.Application.Features.Category.Queries;
 using E_Shop.Domain;
 using E_Shop.Infrastructure.Data;
 using FluentAssertions;
@@ -122,5 +123,50 @@ namespace E_Shop.Api.Tests.Intagration.CategoryController
             }
 
         }
+
+        [Fact]
+        public async Task Update_ShouldInvalidateCache_WhenCategoryIsUpdated()
+        {
+            // Arrange
+            var category = _categoryGenerator.Generate();
+            var originalName = category.Name;
+
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                dbContext.Categories.Add(category);
+                await dbContext.SaveChangesAsync();
+            }
+
+            await _client.GetAsync($"/api/v1/categories");
+            await _client.GetAsync($"/api/v1/categories/{category.Id}");
+
+            var updatedName = "Updated Name";
+            var updateRequest = new UpdateCategoryRequest
+            {
+                Id = category.Id,
+                Name = updatedName,
+                DisplayOrder = category.DisplayOrder
+            };
+
+            // Act 
+            var response = await _client.PutAsJsonAsync($"/api/v1/categories/{category.Id}", updateRequest);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var getResponse = await _client.GetAsync($"/api/v1/categories/{category.Id}");
+            var fetchedCategory = await getResponse.Content.ReadFromJsonAsync<CategoryResponse>();
+
+            fetchedCategory.Should().NotBeNull();
+            fetchedCategory!.Name.Should().Be(updatedName);
+
+            var getAllResponse = await _client.GetAsync($"/api/v1/categories");
+            var list = await getAllResponse.Content.ReadFromJsonAsync<List<CategoryResponse>>();
+
+            list.Should().Contain(c => c.Name == updatedName);
+            list.Should().NotContain(c => c.Name == originalName);
+        }
+
     }
 }
