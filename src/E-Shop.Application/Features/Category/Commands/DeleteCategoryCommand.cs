@@ -4,23 +4,23 @@ using E_Shop.Application.Common.Utility;
 using E_Shop.Application.PipelineBehaviors.Contracts;
 using FluentResults;
 using MediatR;
-using Microsoft.Extensions.Caching.Distributed;
 
 
 namespace E_Shop.Application.Features.Category.Commands
 {
-    public record DeleteCategoryCommand(int Id) : IRequest<Result>, IValidatable;
+    public record DeleteCategoryCommand(int Id) : IRequest<Result>, IValidatable, ICacheInvalidator
+    {
+        public string[] CacheKeysToInvalidate => new[] { $"{SD.Category}_List" , $"{SD.Category}_{Id}" };
+    }
 
     public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryCommand, Result>
     {
         private readonly ICategoryRepository _categoryRepository;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IDistributedCache _distributedCache;
-        public DeleteCategoryCommandHandler(ICategoryRepository categoryRepository, IUnitOfWork unitOfWork, IDistributedCache distributedCache)
+        public DeleteCategoryCommandHandler(ICategoryRepository categoryRepository, IUnitOfWork unitOfWork)
         {
             _categoryRepository = categoryRepository;
             _unitOfWork = unitOfWork;
-            _distributedCache = distributedCache;
         }
 
         public async Task<Result> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
@@ -35,16 +35,6 @@ namespace E_Shop.Application.Features.Category.Commands
             if (changes == 0)
             {
                 return Result.Fail(new Error("Failed to delete category"));
-            }
-            try
-            {
-                var removeListTask = _distributedCache.RemoveAsync($"{SD.Category}_List", cancellationToken);
-                var removeSingleTask = _distributedCache.RemoveAsync($"{SD.Category}_{request.Id}", cancellationToken);
-                await Task.WhenAll(removeListTask, removeSingleTask);
-            }
-            catch (Exception)
-            {
-
             }
             return Result.Ok();
         }
