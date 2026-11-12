@@ -66,7 +66,7 @@ namespace E_Shop.Api.Tests.Intagration.CategoryController
             var updateRequest = _requestGenerator.Generate();
             updateRequest.Id = 9999; // فرض می‌کنیم این آی‌دی وجود ندارد
             // Act
-            var response = await _client.PutAsJsonAsync($"/api/v1/categories", updateRequest);
+            var response = await _client.PutAsJsonAsync($"/api/v1/categories/{updateRequest.Id}", updateRequest);
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
@@ -92,7 +92,7 @@ namespace E_Shop.Api.Tests.Intagration.CategoryController
             };
 
             // Act
-            var response = await _client.PutAsJsonAsync($"/api/v1/categories", updateRequest);
+            var response = await _client.PutAsJsonAsync($"/api/v1/categories/{updateRequest.Id}", updateRequest);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
