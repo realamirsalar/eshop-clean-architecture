@@ -8,7 +8,15 @@ using MediatR;
 
 namespace E_Shop.Application.Features.Category.Queries
 {
-    public record GetCategoryByIdQuery(long Id) : IRequest<Result<CategoryResponse>>, IValidatable;
+    public record GetCategoryByIdQuery(long Id) : IRequest<Result<CategoryResponse>>, IValidatable, ICacheable
+    {
+        public string CacheKey => $"Category_{Id}";
+
+        public bool BypassCache { get; set; } = false;
+
+        public TimeSpan? SlidingExpiration => null;
+        public TimeSpan? AbsoluteExpirationRelativeToNow => null;
+    }
 
     public class GetCategoryByIdQueryHandler : IRequestHandler<GetCategoryByIdQuery, Result<CategoryResponse>>
     {

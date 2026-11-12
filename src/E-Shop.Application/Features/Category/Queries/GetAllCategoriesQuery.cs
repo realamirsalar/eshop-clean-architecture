@@ -1,13 +1,21 @@
 ﻿
-
 using AutoMapper;
 using E_Shop.Application.Common.Interfaces;
+using E_Shop.Application.PipelineBehaviors.Contracts;
 using FluentResults;
 using MediatR;
 
 namespace E_Shop.Application.Features.Category.Queries
 {
-    public record GetAllCategoriesQuery : IRequest<Result<List<CategoryResponse>>> ;
+    public class GetAllCategoriesQuery : IRequest<Result<List<CategoryResponse>>>, ICacheable
+    {
+        public string CacheKey => $"Category_List";
+
+        public bool BypassCache { get; set; } = false;
+
+        public TimeSpan? SlidingExpiration => null;
+        public TimeSpan? AbsoluteExpirationRelativeToNow => null;
+    }
 
     public class GetAllCategoriesQueryHandler : IRequestHandler<GetAllCategoriesQuery, Result<List<CategoryResponse>>>
     {
