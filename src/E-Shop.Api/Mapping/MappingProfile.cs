@@ -9,6 +9,7 @@ namespace E_Shop.Api.Mapping
         public MappingProfile()
         {
             CreateMap<CreateCategoryRequest, CreateCategoryCommand>();
+            CreateMap<UpdateCategoryRequest, UpdateCategoryCommand>();
         }
     }
 }

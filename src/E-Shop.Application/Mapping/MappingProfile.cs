@@ -10,8 +10,9 @@ namespace E_Shop.Application.Mapping
     {
         public MappingProfile()
         {
-            CreateMap<Category , CategoryResponse>();
             CreateMap<CreateCategoryCommand, Category>();
+            CreateMap<UpdateCategoryCommand, Category>();
+            CreateMap<Category, CategoryResponse>(); ;
         }
     }
 }

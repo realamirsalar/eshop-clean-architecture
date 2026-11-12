@@ -3,19 +3,20 @@
 using AutoMapper;
 using E_Shop.Application.Common.Errors;
 using E_Shop.Application.Common.Interfaces;
+using E_Shop.Application.Features.Category.Queries;
 using E_Shop.Application.PipelineBehaviors.Contracts;
 using FluentResults;
 using MediatR;
 
 namespace E_Shop.Application.Features.Category.Commands
 {
-    public class UpdateCategoryCommand : IRequest<Result>, IValidatable
+    public class UpdateCategoryCommand : IRequest<Result<CategoryResponse>>, IValidatable
     {
         public int Id { get; set; }
         public string Name { get; set; }
         public int DisplayOrder { get; set; }
     }
-    public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryCommand, Result>
+    public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryCommand, Result<CategoryResponse>>
     {
         private readonly ICategoryRepository _categoryRepository;
         private readonly IUnitOfWork _unitOfWork;
@@ -28,7 +29,7 @@ namespace E_Shop.Application.Features.Category.Commands
             _mapper = mapper;
         }
 
-        public async Task<Result> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
+        public async Task<Result<CategoryResponse>> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
         {
             var category = await _categoryRepository.GetByIdAsync(request.Id, cancellationToken);
             if (category == null)
@@ -42,7 +43,8 @@ namespace E_Shop.Application.Features.Category.Commands
             {
                 return Result.Fail(new Error("Failed to update product."));
             }
-            return Result.Ok();
+            var response = _mapper.Map<CategoryResponse>(category);
+            return Result.Ok(response);
         }
     }
 }
