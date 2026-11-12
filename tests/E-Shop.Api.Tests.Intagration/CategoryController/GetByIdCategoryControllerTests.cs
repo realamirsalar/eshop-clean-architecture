@@ -75,5 +75,41 @@ namespace E_Shop.Api.Tests.Intagration.CategoryController
             problemDetails.Errors.Should().ContainKey("Id");
 
         }
+
+        [Fact]
+        public async Task Get_ShouldReturnCachedData_WhenCalledMultipleTimes()
+        {
+            // Arrange
+            var fakeCategory = _requestGenerator.Generate();
+
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                dbContext.Categories.Add(fakeCategory);
+                await dbContext.SaveChangesAsync();
+            }
+
+            await _client.GetAsync($"/api/v1/categories/{fakeCategory.Id}");
+
+            var newName = "Updated Name";
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var categoryInDb = await dbContext.Categories.FindAsync(fakeCategory.Id);
+                categoryInDb!.Name = newName;
+                await dbContext.SaveChangesAsync();
+            }
+
+            // Act
+            var response = await _client.GetAsync($"/api/v1/categories/{fakeCategory.Id}");
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var cachedData = await response.Content.ReadFromJsonAsync<CategoryResponse>();
+            cachedData.Should().NotBeNull();
+            cachedData!.Name.Should().Be(fakeCategory.Name); // مقایسه با نام اولیه
+            cachedData.Name.Should().NotBe(newName);
+        }
     }
 }

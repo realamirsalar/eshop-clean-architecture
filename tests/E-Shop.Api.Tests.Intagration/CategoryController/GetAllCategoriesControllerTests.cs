@@ -59,7 +59,7 @@ namespace E_Shop.Api.Tests.Intagration.CategoryController
         }
 
         [Fact]
-        public async Task GetAll_ShouldReturnCachedDataList_WhenCalledMultipleTime()
+        public async Task GetAll_ShouldReturnCachedDataList_WhenCalledMultipleTimes()
         {
             // Arrange
             var fakeCategories = _faker.Generate(3);
