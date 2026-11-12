@@ -1,8 +1,10 @@
-﻿using E_Shop.Application.Common.Interfaces;
+﻿using E_Shop.Application.Common.CacheOptions;
+using E_Shop.Application.Common.Interfaces;
 using E_Shop.Infrastructure.Data;
 using E_Shop.Infrastructure.Persistence;
 using E_Shop.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace E_Shop.Infrastructure
@@ -23,5 +25,17 @@ namespace E_Shop.Infrastructure
             return services;
         }
 
+        public static IServiceCollection ConfigureCache(this IServiceCollection services, IConfiguration configuration)
+        {
+            var redisConnection = configuration["CacheSettings:RedisConnection"];
+
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = redisConnection;
+                options.InstanceName = configuration["CacheSettings:Application"] + "_";
+            });
+
+            return services;
+        }
     }
 }

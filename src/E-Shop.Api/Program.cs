@@ -22,6 +22,8 @@ builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(Program).Assembly));
 
 builder.Services.Configure<CacheSettings>(builder.Configuration.GetSection(CacheSettings.SectionName));
 
+builder.Services.ConfigureCache(builder.Configuration);
+
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 
