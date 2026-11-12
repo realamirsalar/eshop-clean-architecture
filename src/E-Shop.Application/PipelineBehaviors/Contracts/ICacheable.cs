@@ -1,8 +1,11 @@
 ﻿
-
 namespace E_Shop.Application.PipelineBehaviors.Contracts
 {
-    internal interface ICacheable
+    public interface ICacheable
     {
+        string CacheKey { get; }
+        TimeSpan? SlidingExpiration { get; }
+        TimeSpan? AbsoluteExpirationRelativeToNow { get; }
+        bool BypassCache { get; }
     }
 }

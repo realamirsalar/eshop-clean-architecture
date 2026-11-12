@@ -13,6 +13,7 @@ namespace E_Shop.Application
             {
                 cfg.RegisterServicesFromAssembly(typeof(Startup).Assembly);
                 cfg.AddOpenBehavior(typeof(ValidationPipelineBehaviors<,>));
+                cfg.AddOpenBehavior(typeof(CachePipelineBehavior<,>));
             });
             services.AddAutoMapper(cfg => cfg.AddMaps(typeof(Startup).Assembly));
             services.AddValidatorsFromAssembly(typeof(Startup).Assembly);
