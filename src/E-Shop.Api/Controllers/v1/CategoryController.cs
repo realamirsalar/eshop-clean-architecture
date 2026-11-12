@@ -23,7 +23,6 @@ namespace E_Shop.Api.Controllers.v1
 
         [HttpPost]
         [ProducesResponseType(typeof(CategoryResponse),StatusCodes.Status201Created)]
-        [ProducesResponseType(typeof(CategoryResponse),StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ValidationProblemDetails),StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status502BadGateway)]
