@@ -2,6 +2,7 @@
 using Bogus;
 using E_Shop.Api.Contracts.Category;
 using E_Shop.Application.Features.Category.Queries;
+using E_Shop.Domain;
 using E_Shop.Infrastructure.Data;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +17,10 @@ namespace E_Shop.Api.Tests.Intagration.CategoryController
         private readonly Faker<CreateCategoryRequest> _requestGenerator = new Faker<CreateCategoryRequest>()
             .RuleFor(x => x.Name, f => f.Commerce.Categories(1)[0])
             .RuleFor(x => x.DisplayOrder, f => f.Random.Int(1, 100));
+        private readonly Faker<Category> _categoryGeneratorForDb = new Faker<Category>()
+         .RuleFor(c => c.Name, faker => faker.Commerce.Categories(1)[0])
+         .RuleFor(c => c.DisplayOrder, faker => faker.Random.Number(1, 100));
+
         public CreateCategoryControllerTests(ApplicationApiFactory factory) : base(factory)
         {
         }
@@ -30,12 +35,13 @@ namespace E_Shop.Api.Tests.Intagration.CategoryController
             var response = await _client.PostAsJsonAsync("/api/v1/categories", request);
 
             // Assert
-            response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-            //response.StatusCode.Should().Be(HttpStatusCode.Created);
-            //response.Headers.Location.Should().NotBeNull();
-            //response.Headers.Location!.ToString().Should().Be($"http://localhost/api/v1/categories/{createdCategory.Id}");
+            response.StatusCode.Should().Be(HttpStatusCode.Created);
+            response.Headers.Location.Should().NotBeNull();
 
             var responseData = await response.Content.ReadFromJsonAsync<CategoryResponse>();
+
+            response.Headers.Location!.ToString().Should().Be($"http://localhost/api/v1/categories/{responseData.Id}");
+
 
             responseData.Should().NotBeNull();
             responseData!.Name.Should().Be(request.Name);
@@ -76,5 +82,38 @@ namespace E_Shop.Api.Tests.Intagration.CategoryController
             problemDetails.Errors.Should().ContainKey("Name");
             problemDetails.Errors.Should().ContainKey("DisplayOrder");
         }
+
+         [Fact]
+        public async Task Create_ShouldInvalidateGetAllCache_WhenNewCategoryIsCreated()
+        {
+            // Arrange
+            var initialCat = _categoryGeneratorForDb.Generate(2);
+
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                dbContext.Categories.AddRange(initialCat);
+                await dbContext.SaveChangesAsync();
+            }
+
+            await _client.GetAsync("/api/v1/categories");
+
+            var newCategoryRequest = _categoryGeneratorForDb.Generate();
+
+            // Act
+            var createResponse = await _client.PostAsJsonAsync("/api/v1/categories", newCategoryRequest);
+
+            var getAllResponse = await _client.GetAsync("/api/v1/categories");
+
+            createResponse.StatusCode.Should().Be(HttpStatusCode.Created); 
+
+            // Assert
+            var updatedList = await getAllResponse.Content.ReadFromJsonAsync<List<CategoryResponse>>();
+
+            updatedList.Should().NotBeNull();
+            updatedList.Should().HaveCount(3);
+            updatedList!.Should().Contain(c => c.Name == newCategoryRequest.Name);
+        }
+
     }
 }
