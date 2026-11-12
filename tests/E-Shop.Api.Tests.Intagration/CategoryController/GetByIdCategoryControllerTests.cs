@@ -1,10 +1,10 @@
 ﻿
 using Bogus;
-using E_Shop.Api.Contracts.Category;
 using E_Shop.Application.Features.Category.Queries;
 using E_Shop.Domain;
 using E_Shop.Infrastructure.Data;
 using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Net.Http.Json;
@@ -56,6 +56,24 @@ namespace E_Shop.Api.Tests.Intagration.CategoryController
             var response = await _client.GetAsync($"/api/v1/categories/{nonExistentCategoryId}");
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+        [Fact]
+        public async Task Get_ReturnsValidationError_WhenIdIsInvalid()
+        {
+            // Arrange
+            var nonExistentCategoryId = -1;
+            // Act
+            var response = await _client.GetAsync($"/api/v1/categories/{nonExistentCategoryId}");
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+            var problemDetails = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
+
+            problemDetails.Should().NotBeNull();
+            problemDetails.Status.Should().Be(400);
+            problemDetails.Errors.Should().ContainKey("Id");
+
         }
     }
 }
