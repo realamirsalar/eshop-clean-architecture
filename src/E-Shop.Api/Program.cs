@@ -1,6 +1,7 @@
 using E_Shop.Api;
 using E_Shop.Api.ExceptionHandlers;
 using E_Shop.Application;
+using E_Shop.Application.Common.CacheOptions;
 using E_Shop.Infrastructure;
 using Scalar.AspNetCore;
 
@@ -17,6 +18,9 @@ builder.Services.AddApplicationDIs();
 
 
 builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(Program).Assembly));
+
+
+builder.Services.Configure<CacheSettings>(builder.Configuration.GetSection(CacheSettings.SectionName));
 
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
