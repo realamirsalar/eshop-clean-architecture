@@ -1,8 +1,10 @@
 ﻿using E_Shop.Application.Common.Errors;
 using E_Shop.Application.Common.Interfaces;
+using E_Shop.Application.Common.Utility;
 using E_Shop.Application.PipelineBehaviors.Contracts;
 using FluentResults;
 using MediatR;
+using Microsoft.Extensions.Caching.Distributed;
 
 
 namespace E_Shop.Application.Features.Category.Commands
@@ -13,11 +15,12 @@ namespace E_Shop.Application.Features.Category.Commands
     {
         private readonly ICategoryRepository _categoryRepository;
         private readonly IUnitOfWork _unitOfWork;
-
-        public DeleteCategoryCommandHandler(ICategoryRepository categoryRepository, IUnitOfWork unitOfWork)
+        private readonly IDistributedCache _distributedCache;
+        public DeleteCategoryCommandHandler(ICategoryRepository categoryRepository, IUnitOfWork unitOfWork, IDistributedCache distributedCache)
         {
             _categoryRepository = categoryRepository;
             _unitOfWork = unitOfWork;
+            _distributedCache = distributedCache;
         }
 
         public async Task<Result> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
@@ -33,7 +36,16 @@ namespace E_Shop.Application.Features.Category.Commands
             {
                 return Result.Fail(new Error("Failed to delete category"));
             }
-            ;
+            try
+            {
+                var removeListTask = _distributedCache.RemoveAsync($"{SD.Category}_List", cancellationToken);
+                var removeSingleTask = _distributedCache.RemoveAsync($"{SD.Category}_{request.Id}", cancellationToken);
+                await Task.WhenAll(removeListTask, removeSingleTask);
+            }
+            catch (Exception)
+            {
+
+            }
             return Result.Ok();
         }
     }
