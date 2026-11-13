@@ -20,14 +20,15 @@ namespace E_Shop.Application.Tests.Unit.ValidatorTests.Category
         [InlineData("")]
         [InlineData(" ")]
         [InlineData("   ")]
-        public void Should_HaveError_When_NameIsEmptyOrWhiteSpace(string name)
+        public void Should_HaveError_WhenNameIsEmptyOrWhiteSpace(string name)
         {
             // Arrange
             var command = new CreateCategoryCommand { Name = name };
             // Act
             var result = _validator.TestValidate(command);
             // Assert
-            result.ShouldHaveValidationErrorFor(c => c.Name);
+            result.ShouldHaveValidationErrorFor(c => c.Name)
+                .WithErrorMessage("Category name is required.");
         }
         [Fact]
         public void Should_HaveError_WhenNameExceedsMaxLength()
@@ -40,7 +41,8 @@ namespace E_Shop.Application.Tests.Unit.ValidatorTests.Category
             // Act
             var result = _validator.TestValidate(command);
             // Assert
-            result.ShouldHaveValidationErrorFor(c => c.Name);
+            result.ShouldHaveValidationErrorFor(c => c.Name)
+                .WithErrorMessage("Category name cannot exceed 150 characters.");
         }
 
         [Theory]
@@ -71,8 +73,27 @@ namespace E_Shop.Application.Tests.Unit.ValidatorTests.Category
             // Act
             var result = _validator.TestValidate(command);
             // Assert
-            result.ShouldHaveValidationErrorFor(c => c.DisplayOrder);
+            result.ShouldHaveValidationErrorFor(c => c.DisplayOrder)
+                .WithErrorMessage("Display order must be a positive integer.");
         }
+        [Theory]
+        [InlineData(1000)]
+        [InlineData(1001)]
+        [InlineData(20000)]
+        public void Should_HaveError_WhenDisplayOrderIsGreaterThanOrEqualTo1000(int displayOrder)
+        {
+            // Arrange
+            var command = new CreateCategoryCommand()
+            {
+                DisplayOrder = displayOrder
+            };
+            // Act
+            var result = _validator.TestValidate(command);
+            // Assert
+            result.ShouldHaveValidationErrorFor(c => c.DisplayOrder)
+                .WithErrorMessage("Display order must be less than 1000");
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
