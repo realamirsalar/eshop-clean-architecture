@@ -6,7 +6,7 @@
     <Project Path="src/E-Shop.Infrastructure/E-Shop.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
-    <Project Path="tests/E-Shop.Api.Tests.Intagration/E-Shop.Api.Tests.Intagration.csproj" />
+    <Project Path="tests/E-Shop.Api.Tests.Intagration/E-Shop.Api.Tests.Integration.csproj" />
     <Project Path="tests/E-Shop.Application.Tests.Unit/E-Shop.Application.Tests.Unit.csproj" />
   </Folder>
 </Solution>
