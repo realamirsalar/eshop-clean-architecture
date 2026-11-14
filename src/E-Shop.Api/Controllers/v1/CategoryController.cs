@@ -26,10 +26,10 @@ namespace E_Shop.Api.Controllers.v1
         [ProducesResponseType(typeof(ValidationProblemDetails),StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status502BadGateway)]
-        public async Task<IActionResult> CreateCategory(CreateCategoryRequest request)
+        public async Task<IActionResult> CreateCategory(CreateCategoryRequest request, CancellationToken cancellationToken = default)
         {
             var command = _mapper.Map<CreateCategoryCommand>(request);
-            var result = await _sender.Send(command);
+            var result = await _sender.Send(command, cancellationToken);
             if(result.IsSuccess)
             {
                 return CreatedAtAction(nameof(GetCategoryById), new { id = result.Value.Id }, result.Value);
@@ -41,9 +41,9 @@ namespace E_Shop.Api.Controllers.v1
         [ProducesResponseType(typeof(List<CategoryResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status502BadGateway)]
-        public async Task<IActionResult> GetAllCategories()
+        public async Task<IActionResult> GetAllCategories(CancellationToken cancellationToken = default)
         {
-            var result = await _sender.Send(new GetAllCategoriesQuery());
+            var result = await _sender.Send(new GetAllCategoriesQuery(), cancellationToken);
             return HandleResult(result);
         }
 
@@ -53,9 +53,9 @@ namespace E_Shop.Api.Controllers.v1
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status502BadGateway)]
-        public async Task<IActionResult> GetCategoryById([FromRoute] int id)
+        public async Task<IActionResult> GetCategoryById([FromRoute] int id, CancellationToken cancellationToken = default)
         {
-            var result = await _sender.Send(new GetCategoryByIdQuery(id));
+            var result = await _sender.Send(new GetCategoryByIdQuery(id), cancellationToken);
             return HandleResult(result);
         }
 
@@ -65,11 +65,11 @@ namespace E_Shop.Api.Controllers.v1
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status502BadGateway)]
-        public async Task<IActionResult> UpdateCategory([FromRoute]int id,[FromBody] UpdateCategoryRequest request)
+        public async Task<IActionResult> UpdateCategory([FromRoute]int id,[FromBody] UpdateCategoryRequest request, CancellationToken cancellationToken = default)
         {
             request.Id = id;
             var command = _mapper.Map<UpdateCategoryCommand>(request);
-            var result = await _sender.Send(command);
+            var result = await _sender.Send(command, cancellationToken);
             return HandleResult(result);
         }
 
@@ -79,10 +79,10 @@ namespace E_Shop.Api.Controllers.v1
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status502BadGateway)]
-        public async Task<IActionResult> DeleteCategory([FromRoute] int id)
+        public async Task<IActionResult> DeleteCategory([FromRoute] int id, CancellationToken cancellationToken = default)
         {
             var command = _mapper.Map<DeleteCategoryCommand>(new DeleteCategoryCommand(id));
-            var result = await _sender.Send(command);
+            var result = await _sender.Send(command, cancellationToken);
             return HandleResult(result);
         }
 

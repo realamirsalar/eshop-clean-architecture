@@ -1,4 +1,4 @@
-﻿using E_Shop.Application.Common.CacheOptions;
+﻿
 using E_Shop.Application.Common.Interfaces;
 using E_Shop.Infrastructure.Data;
 using E_Shop.Infrastructure.Persistence;
@@ -21,6 +21,7 @@ namespace E_Shop.Infrastructure
         public static IServiceCollection AddInfrastructureDIs(this IServiceCollection services)
         {
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             return services;
         }
