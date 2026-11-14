@@ -2,6 +2,8 @@
 using AutoMapper;
 using E_Shop.Application.Features.Category.Commands;
 using E_Shop.Application.Features.Category.Queries;
+using E_Shop.Application.Features.Product.Commands;
+using E_Shop.Application.Features.Product.Queries;
 using E_Shop.Domain;
 
 namespace E_Shop.Application.Mapping
@@ -12,7 +14,12 @@ namespace E_Shop.Application.Mapping
         {
             CreateMap<CreateCategoryCommand, Category>();
             CreateMap<UpdateCategoryCommand, Category>();
-            CreateMap<Category, CategoryResponse>(); ;
+            CreateMap<Category, CategoryResponse>();
+
+
+            CreateMap<CreateProductCommand, Product>();
+            //CreateMap<UpdateProductCommand, Product>();
+            CreateMap<Product, ProductResponse>();
         }
     }
 }
