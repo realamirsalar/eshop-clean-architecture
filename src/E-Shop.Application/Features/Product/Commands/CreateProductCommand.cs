@@ -1,6 +1,7 @@
 ﻿
 
 using AutoMapper;
+using E_Shop.Application.Common.Errors;
 using E_Shop.Application.Common.Interfaces;
 using E_Shop.Application.Features.Product.Queries;
 using E_Shop.Application.PipelineBehaviors.Contracts;
@@ -21,18 +22,26 @@ namespace E_Shop.Application.Features.Product.Commands
     public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, Result<ProductResponse>>
     {
         private readonly IProductRepository _productRepository;
+        private readonly ICategoryRepository _categoryRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public CreateProductCommandHandler(IProductRepository productRepository, IUnitOfWork unitOfWork, IMapper mapper)
+        public CreateProductCommandHandler(IProductRepository productRepository, IUnitOfWork unitOfWork, IMapper mapper, ICategoryRepository categoryRepository)
         {
             _productRepository = productRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _categoryRepository = categoryRepository;
         }
 
         public async Task<Result<ProductResponse>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
+            bool categoryExists = await _categoryRepository.ExistsAsync(request.CategoryId, cancellationToken);
+            if (!categoryExists)
+            {
+                return Result.Fail(new NotFoundError("Invalid category ID."));
+            }
+
             var product = _mapper.Map<Domain.Product>(request);
             await _productRepository.AddAsync(product);
             var changes = await _unitOfWork.SaveChangesAsync(cancellationToken);

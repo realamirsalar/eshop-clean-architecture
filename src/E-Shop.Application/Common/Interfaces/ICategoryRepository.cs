@@ -9,5 +9,6 @@ namespace E_Shop.Application.Common.Interfaces
         Task CreateAsync(Category category , CancellationToken cancellationToken = default);
         void Update(Category category, CancellationToken cancellationToken = default);
         void Delete(Category category, CancellationToken cancellationToken = default);
+        Task<bool> ExistsAsync(int id, CancellationToken cancellationToken = default);
     }
 }

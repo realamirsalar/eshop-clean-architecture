@@ -25,6 +25,16 @@ namespace E_Shop.Infrastructure.Persistence.Repositories
             _db.Categories.Remove(category);
         }
 
+        public async Task<bool> ExistsAsync(int id, CancellationToken cancellationToken = default)
+        {
+            var category = await _db.Categories.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+            if (category == null)
+            {
+                return false;
+            }
+            return true;
+        }
+
         public async Task<List<Category>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             return await _db.Categories.AsNoTracking().ToListAsync(cancellationToken);
