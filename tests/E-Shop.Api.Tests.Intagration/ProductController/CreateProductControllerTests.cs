@@ -79,5 +79,25 @@ namespace E_Shop.Api.Tests.Intagration.ProductController
             validationErrors.Errors.Should().ContainKey("Price");
             validationErrors.Errors.Should().ContainKey("Quantity");
         }
+
+        [Fact]
+        public async Task Create_ReturnsNotFound_WhenCategoryDoesNotExist()
+        {
+            // Arrange
+            var product = _productGenerator.Generate();
+            product.CategoryId = 9999; 
+
+            // Act
+            var response = await _client.PostAsJsonAsync("/api/v1/products", product);
+
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.NotFound);
+
+            var detail = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+            detail.Should().NotBeNull();
+            detail.Detail.Should().Be("Invalid category ID.");
+            detail.Status.Should().Be(404);
+
+        }
     }
 }
