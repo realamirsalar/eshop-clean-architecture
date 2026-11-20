@@ -1,5 +1,5 @@
 ﻿
-using E_Shop.Domain;
+using E_Shop.Application.Features.Category.Queries;
 
 namespace E_Shop.Application.Features.Product.Queries
 {
@@ -11,7 +11,7 @@ namespace E_Shop.Application.Features.Product.Queries
         public int Quantity { get; set; }
         public int Price { get; set; }
         public int CategoryId { get; set; }
-        public Domain.Category Category { get; set; }
-        public List<ProductImage> ProductImages { get; set; }
+        public CategoryResponse Category { get; set; }
+        //public List<ProductImage> ProductImages { get; set; }
     }
 }

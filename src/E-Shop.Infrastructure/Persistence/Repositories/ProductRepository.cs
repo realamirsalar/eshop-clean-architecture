@@ -20,7 +20,7 @@ namespace E_Shop.Infrastructure.Persistence.Repositories
             await _db.AddAsync(product, cancellationToken);
         }
 
-        public async Task ExecuteDeleteAsync(long id, CancellationToken cancellationToken = default)
+        public async Task ExecuteDeleteAsync(int id, CancellationToken cancellationToken = default)
         {
             await _db.Products.Where(p => p.Id == id).ExecuteDeleteAsync(cancellationToken);
         }
@@ -30,7 +30,7 @@ namespace E_Shop.Infrastructure.Persistence.Repositories
             return _db.Products.AsNoTracking().ToListAsync(cancellationToken);
         }
 
-        public async Task<Product> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+        public async Task<Product> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return await _db.Products
                 .Include(p => p.Category)

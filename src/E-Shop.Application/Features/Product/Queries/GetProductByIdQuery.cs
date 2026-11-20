@@ -7,7 +7,7 @@ using MediatR;
 
 namespace E_Shop.Application.Features.Product.Queries
 {
-    public record GetProductByIdQuery(long Id) : IRequest<Result<ProductResponse>>, IValidatable;
+    public record GetProductByIdQuery(int Id) : IRequest<Result<ProductResponse>>;
 
     public class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQuery, Result<ProductResponse>>
     {
