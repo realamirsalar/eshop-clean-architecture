@@ -6,6 +6,7 @@ using E_Shop.Application.Features.Product.Queries;
 using E_Shop.Domain;
 using E_Shop.Infrastructure.Data;
 using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http.Json;
 
@@ -56,5 +57,27 @@ namespace E_Shop.Api.Tests.Intagration.ProductController
             );
         }
 
+        [Fact]
+        public async Task Create_ReturnsValidationError_WhenDataIsInvalid()
+        {
+            // Arrange
+            var invalidProduct = new CreateProductRequest
+            {
+                Name = "", // Invalid name
+                Description = "Valid description",
+                Price = -10, // Invalid price
+                Quantity = 0, // Invalid quantity
+                CategoryId = 33 // Assuming this category does not exist
+            };
+            // Act
+            var response = await _client.PostAsJsonAsync("/api/v1/products", invalidProduct);
+            // Assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+            var validationErrors = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
+            validationErrors.Should().NotBeNull();
+            validationErrors.Errors.Should().ContainKey("Name");
+            validationErrors.Errors.Should().ContainKey("Price");
+            validationErrors.Errors.Should().ContainKey("Quantity");
+        }
     }
 }
