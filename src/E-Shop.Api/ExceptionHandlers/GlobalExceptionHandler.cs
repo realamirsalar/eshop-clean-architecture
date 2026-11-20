@@ -1,71 +1,93 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace E_Shop.Api.ExceptionHandlers
 {
-
-    public class GlobalExceptionHandler : IExceptionHandler
+    public sealed class GlobalExceptionHandler : IExceptionHandler
     {
         private readonly ILogger<GlobalExceptionHandler> _logger;
+        private readonly IHostEnvironment _env;
+        private readonly IProblemDetailsService _problemDetailsService;
 
-        public GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger)
+        public GlobalExceptionHandler(
+            ILogger<GlobalExceptionHandler> logger,
+            IHostEnvironment env,
+            IProblemDetailsService problemDetailsService)
         {
             _logger = logger;
+            _env = env;
+            _problemDetailsService = problemDetailsService;
         }
-        public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
+
+        public async ValueTask<bool> TryHandleAsync(
+            HttpContext httpContext,
+            Exception exception,
+            CancellationToken cancellationToken)
         {
-            _logger.LogError(
-            exception,
-            "An unhandled exception occurred during the processing of the request. MachineName: {MachineName}, TraceId: {TraceId}",
-            Environment.MachineName,
-            httpContext.TraceIdentifier);
-
-            var statusCode = exception switch
+            if (httpContext.Response.HasStarted)
             {
-                OperationCanceledException or TaskCanceledException => 499,
+                _logger.LogWarning(exception, "Response has already started, cannot write ProblemDetails.");
+                return false;
+            }
 
-                NotImplementedException => StatusCodes.Status501NotImplemented,
+            var (statusCode, title, detail) = MapException(exception);
+            var traceId = Activity.Current?.Id ?? httpContext.TraceIdentifier;
 
-                TimeoutException => StatusCodes.Status504GatewayTimeout,
+            LogException(exception, statusCode, traceId);
 
-                UnauthorizedAccessException => StatusCodes.Status403Forbidden,
+            httpContext.Response.StatusCode = statusCode;
 
-                _ => StatusCodes.Status500InternalServerError
-            };
+            if (statusCode == 499)
+            {
+                return true;
+            }
 
             var problemDetails = new ProblemDetails
             {
                 Status = statusCode,
-                Title = GetTitle(statusCode),
+                Title = title,
                 Type = $"https://httpstatuses.com/{statusCode}",
-                Detail = statusCode == 500
-                    ? "An unexpected error occurred on the server. Our technical team has been notified."
-                    : exception.Message,
+                Detail = _env.IsDevelopment() ? exception.Message : detail,
                 Instance = httpContext.Request.Path
             };
 
-            problemDetails.Extensions.Add("traceId", httpContext.TraceIdentifier);
+            problemDetails.Extensions["traceId"] = traceId;
 
-
-            httpContext.Response.StatusCode = statusCode;
-            httpContext.Response.ContentType = "application/problem+json";
-
-            await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
-
-            return true;
-        }
-        private static string GetTitle(int statusCode)
-        {
-            return statusCode switch
+            return await _problemDetailsService.TryWriteAsync(new ProblemDetailsContext
             {
-                499 => "Client Closed Request",
-                StatusCodes.Status403Forbidden => "Forbidden Access",
-                StatusCodes.Status501NotImplemented => "Not Implemented",
-                StatusCodes.Status504GatewayTimeout => "Gateway Timeout",
-                StatusCodes.Status500InternalServerError => "Server Error",
-                _ => "An error occurred"
+                HttpContext = httpContext,
+                Exception = exception,
+                ProblemDetails = problemDetails
+            });
+        }
+
+        private static (int StatusCode, string Title, string Detail) MapException(Exception exception) =>
+            exception switch
+            {
+                OperationCanceledException => (499, "Client Closed Request", "The request was canceled by the client."),
+                UnauthorizedAccessException => (StatusCodes.Status403Forbidden, "Forbidden", "You do not have permission to access this resource."),
+                TimeoutException => (StatusCodes.Status504GatewayTimeout, "Gateway Timeout", "The request timed out. Please try again later."),
+                NotImplementedException => (StatusCodes.Status501NotImplemented, "Not Implemented", "This feature is not implemented."),
+                _ => (StatusCodes.Status500InternalServerError, "Server Error", "An unexpected error occurred on the server.")
             };
 
+        private void LogException(Exception exception, int statusCode, string traceId)
+        {
+            if (statusCode >= 500)
+            {
+                _logger.LogError(
+                    exception,
+                    "Unhandled server exception. StatusCode: {StatusCode}, TraceId: {TraceId}, MachineName: {MachineName}",
+                    statusCode, traceId, Environment.MachineName);
+            }
+            else
+            {
+                _logger.LogWarning(
+                    exception,
+                    "Client or request exception. StatusCode: {StatusCode}, TraceId: {TraceId}",
+                    statusCode, traceId);
+            }
         }
     }
 }
