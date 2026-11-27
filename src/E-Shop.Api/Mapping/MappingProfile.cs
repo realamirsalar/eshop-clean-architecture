@@ -15,7 +15,7 @@ namespace E_Shop.Api.Mapping
 
 
             CreateMap<CreateProductRequest, CreateProductCommand>();
-            //CreateMap<UpdateProductRequest, UpdateProductCommand>();
+            CreateMap<UpdateProductRequest, UpdateProductCommand>();
         }
     }
 }
