@@ -21,6 +21,7 @@ namespace E_Shop.Application.Mapping
             //CreateMap<UpdateProductCommand, Product>();
             CreateMap<Product, ProductResponse>()
                 .ForMember(x => x.Category, opt => opt.MapFrom(p => p.Category));
+            CreateMap<Product, ProductListResponse>();
         }
     }
 }
