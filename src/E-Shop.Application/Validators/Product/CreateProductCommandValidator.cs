@@ -14,7 +14,7 @@ namespace E_Shop.Application.Validators.Product
               .MinimumLength(2).WithMessage("Product name must be at least 2 characters long.")
               .MaximumLength(100).WithMessage("Product name cannot exceed 100 characters.");
 
-            RuleFor(x => x.Quantity).NotEmpty()
+            RuleFor(x => x.Quantity)
                 .GreaterThanOrEqualTo(0).WithMessage("Quantity cannot be negative.");
 
             RuleFor(x => x.Price).NotEmpty()
