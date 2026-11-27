@@ -46,5 +46,16 @@ namespace E_Shop.Api.Controllers.v1
             var result = await _sender.Send(query, cancellationToken);
             return HandleResult(result);
         }
+
+        [HttpGet]
+        [ProducesResponseType(typeof(List<ProductListResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status502BadGateway)]
+        public async Task<IActionResult> GetAllProducts(CancellationToken cancellationToken)
+        {
+            var query = new GetAllProductsQuery();
+            var result = await _sender.Send(query, cancellationToken);
+            return HandleResult(result);
+        }
     }
 }
